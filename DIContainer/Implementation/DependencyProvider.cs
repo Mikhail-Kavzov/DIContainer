@@ -1,4 +1,5 @@
-﻿using DIContainer.Interfaces;
+﻿using DIContainer.Enum;
+using DIContainer.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,13 @@ namespace DIContainer.Implementation
             {
                 throw new ArgumentNullException($"No dependency implementation {nameof(tDependency)}");
             }
+
+            if (implementation.LifeTime == LifeCycle.Singleton)
+            {
+                return GetSingleton(tDependency, implementation.ImplementationType);
+            }
+
+            return CreateElement(implementation.ImplementationType);
         }
 
 
@@ -65,11 +73,12 @@ namespace DIContainer.Implementation
             for (int i=0; i< paramsArr.Length; i++)
             {
                 var typeParam = parameters[i].ParameterType;
+                // if interface or abstract class - try to resolve it
                 if (typeParam.IsInterface || typeParam.IsAbstract)
                 {
                     paramsArr[i] = Resolve(typeParam);
                 }
-                else
+                else //otherwise - create new object
                 {
                     paramsArr[i] = CreateElement(typeParam);
                 }
