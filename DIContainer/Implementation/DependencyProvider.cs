@@ -1,5 +1,6 @@
 ﻿using DIContainer.Enum;
 using DIContainer.Interfaces;
+using System.Reflection;
 
 namespace DIContainer.Implementation
 {
@@ -30,29 +31,51 @@ namespace DIContainer.Implementation
             return (T)Resolve(tDependency);           
         }
 
-        private object Resolve(Type tDependency)
+
+        private object GenerateImplementation(Type t)
         {
             var dependencies = _configuration.GetDependencies();
-
-            var implementation = dependencies.Find(d => d.DependencyType == tDependency);
-
+            var implementation = dependencies.Find(d => d.DependencyType == t);
             if (implementation == null)
             {
-                throw new ArgumentNullException($"No dependency implementation {nameof(tDependency)}");
+                throw new ArgumentNullException($"No dependency implementation {nameof(t)}");
             }
+            return DefineSingleton(implementation,t);
+        }
 
+        private object DefineSingleton(DependencyDescriptor implementation, Type t)
+        {
             if (implementation.LifeTime == LifeTime.Singleton)
             {
-                return GetSingleton(tDependency, implementation.ImplementationType);
+                return GetSingleton(t, implementation.ImplementationType);
             }
-
             return CreateElement(implementation.ImplementationType);
         }
 
+        private object Resolve(Type tDependency)
+        {
+            if (tDependency.IsGenericType && tDependency.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                return GenerateImplementations(tDependency.GetGenericArguments().ElementAt(0));
+            }
+            return GenerateImplementation(tDependency);           
+        }
+
+        private object GenerateImplementations(Type tDependency)
+        {
+            var dependencies = _configuration.GetDependencies();
+            var implementations = dependencies.FindAll(d=> d.DependencyType==tDependency);
+            List<object> instances = new();
+            foreach (var implementation in implementations)
+            {
+                instances.Add(DefineSingleton(implementation, tDependency));
+            }
+            return instances;
+        }
 
         private object CreateElement(Type t)
         {
-            var publicConstructors = t.GetConstructors().Where(c => c.IsPublic);
+            var publicConstructors = t.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
             if (publicConstructors == null)
             {
@@ -71,7 +94,7 @@ namespace DIContainer.Implementation
                 // if interface or abstract class - try to resolve it
                 if (typeParam.IsInterface || typeParam.IsAbstract)
                 {
-                    paramsArr[i] = Resolve(typeParam);
+                    paramsArr[i] = GenerateImplementation(typeParam);
                 }
                 else //otherwise - create new object
                 {
