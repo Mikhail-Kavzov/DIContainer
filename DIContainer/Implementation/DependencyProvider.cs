@@ -9,7 +9,7 @@ namespace DIContainer.Implementation
     {
         private readonly DependencyConfiguration _configuration;
         private readonly Dictionary<Type, object> _singletonList = new();
-        private readonly object _lock = new ();
+        private readonly object _lock = new();
 
         /// <summary>
         /// 
@@ -28,7 +28,7 @@ namespace DIContainer.Implementation
 
         public T Resolve<T>() where T : class
         {
-            return (T)Resolve(typeof(T));           
+            return (T)Resolve(typeof(T));
         }
 
 
@@ -44,16 +44,28 @@ namespace DIContainer.Implementation
                     throw new ArgumentNullException($"No dependency implementation {nameof(t)}");
                 }
 
+                //get definition - ex. typeof(IService<>)
                 var typeDef = t.GetGenericTypeDefinition();
                 implementation = dependencies.Find(d => d.DependencyType == typeDef);
-                if (implementation==null)
+                if (implementation == null)
                 {
                     throw new ArgumentNullException($"No open generic implementation {nameof(t)}");
                 }
-                _configuration.Register(t, implementation.ImplementationType, implementation.LifeTime);
+
+                var argument = t.GetGenericArguments()[0];
+
+                var argumentImplementation = dependencies.Find(d => d.DependencyType == argument);
+                if (argumentImplementation == null)
+                {
+                    throw new ArgumentNullException(nameof(argumentImplementation));
+                }
+
+                var newType = implementation.ImplementationType
+                    .MakeGenericType(argumentImplementation.ImplementationType);
+                _configuration.Register(t, newType, implementation.LifeTime);
 
             }
-            return DefineSingleton(implementation,t);
+            return DefineSingleton(implementation, t);
         }
 
         private object DefineSingleton(DependencyDescriptor implementation, Type t)
@@ -71,13 +83,13 @@ namespace DIContainer.Implementation
             {
                 return GenerateImplementations(tDependency.GetGenericArguments().ElementAt(0));
             }
-            return GenerateImplementation(tDependency);           
+            return GenerateImplementation(tDependency);
         }
 
         private IEnumerable<object> GenerateImplementations(Type tDependency)
         {
             var dependencies = _configuration.GetDependencies();
-            var implementations = dependencies.FindAll(d=> d.DependencyType==tDependency);
+            var implementations = dependencies.FindAll(d => d.DependencyType == tDependency);
             var instances = (IList?)Activator.CreateInstance(typeof(List<>).MakeGenericType(tDependency));
             foreach (var implementation in implementations)
             {
@@ -97,11 +109,11 @@ namespace DIContainer.Implementation
 
             var lessParamConstructor = publicConstructors.OrderBy(c => c.GetParameters().Length).First();
 
-            var parameters= lessParamConstructor.GetParameters();
+            var parameters = lessParamConstructor.GetParameters();
 
             var paramsArr = new object[parameters.Length];
 
-            for (int i=0; i< paramsArr.Length; i++)
+            for (int i = 0; i < paramsArr.Length; i++)
             {
                 var typeParam = parameters[i].ParameterType;
                 // if interface or abstract class - try to resolve it
@@ -117,21 +129,21 @@ namespace DIContainer.Implementation
 
             try
             {
-               return Activator.CreateInstance(t, args: paramsArr);
+                return Activator.CreateInstance(t, args: paramsArr);
             }
             catch
             {
                 throw new Exception($"Error during instance creation {nameof(t)}");
-            }           
+            }
         }
 
-        private object GetSingleton(Type tDependency,Type tImplementation)
+        private object GetSingleton(Type tDependency, Type tImplementation)
         {
             // avoid blocking if value exists
-            if (!_singletonList.TryGetValue(tDependency, out var singleton))  
+            if (!_singletonList.TryGetValue(tDependency, out var singleton))
             {
                 lock (_lock) // lock
-                { 
+                {
                     if (singleton == null) // if another thread added element
                     {
                         _singletonList.Add(tDependency, CreateElement(tImplementation));

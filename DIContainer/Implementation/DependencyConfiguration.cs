@@ -61,14 +61,15 @@ namespace DIContainer
 
                 if (!tImplementation.IsAssignableToGenericType(tDependency))
                 {
-                    throw new ArgumentException("Implementation isn't assignable to dependency");
+                    throw new ArgumentException("Implementation generic isn't assignable to dependency");
                 }
             }
             else
             {
                 if (!tImplementation.IsAssignableTo(tDependency))
                 {
-                    throw new ArgumentException("Implementation isn't assignable to dependency");
+                    throw new ArgumentException($"Implementation isn't assignable to dependency" +
+                        $" {tDependency} {tImplementation}");
                 }
             }
 
