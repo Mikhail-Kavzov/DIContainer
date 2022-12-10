@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace DIContainer.Examples
 {
-    public class Impl:IImplementation
+    public interface Impl:IImplementation
     {
     }
 
-    public abstract class IImplementation
+    public interface IImplementation
     {
 
     }
