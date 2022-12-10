@@ -12,9 +12,9 @@ namespace DIContainer.Implementation
     {
         public Type DependencyType { get; }
         public Type ImplementationType { get; }
-        public LifeCycle LifeTime { get; }
+        public LifeTime LifeTime { get; }
 
-        internal DependencyDescriptor(Type dependencyType, Type implementationType, LifeCycle lifeTime)
+        internal DependencyDescriptor(Type dependencyType, Type implementationType, LifeTime lifeTime)
         {
             DependencyType = dependencyType;
             ImplementationType = implementationType;

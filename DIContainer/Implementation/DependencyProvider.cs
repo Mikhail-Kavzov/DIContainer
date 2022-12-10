@@ -1,10 +1,5 @@
 ﻿using DIContainer.Enum;
 using DIContainer.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DIContainer.Implementation
 {
@@ -19,7 +14,7 @@ namespace DIContainer.Implementation
         /// </summary>
         /// <param name="configuration"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public DependencyProvider(DependencyConfiguration configuration)
+        public DependencyProvider(DependencyConfiguration? configuration)
         {
             if (configuration == null)
             {
@@ -46,7 +41,7 @@ namespace DIContainer.Implementation
                 throw new ArgumentNullException($"No dependency implementation {nameof(tDependency)}");
             }
 
-            if (implementation.LifeTime == LifeCycle.Singleton)
+            if (implementation.LifeTime == LifeTime.Singleton)
             {
                 return GetSingleton(tDependency, implementation.ImplementationType);
             }

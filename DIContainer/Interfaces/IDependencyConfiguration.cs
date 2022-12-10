@@ -9,7 +9,7 @@ namespace DIContainer.Interfaces
 {
     public interface IDependencyConfiguration    
     {
-        void Register<TDependency, TImplementation>(LifeCycle lifeCycle = LifeCycle.Transient)
+        void Register<TDependency, TImplementation>(LifeTime lifeCycle = LifeTime.Transient)
             where TDependency : class
             where TImplementation : TDependency;
     }

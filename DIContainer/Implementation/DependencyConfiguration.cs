@@ -1,5 +1,4 @@
 ﻿using DIContainer.Enum;
-using DIContainer.Examples;
 using DIContainer.Implementation;
 using DIContainer.Interfaces;
 using System;
@@ -14,7 +13,7 @@ namespace DIContainer
     {
         private readonly List<DependencyDescriptor> _dependencies = new();
 
-        public void Register<TDependency, TImplementation>(LifeCycle lifeCycle = LifeCycle.Transient)
+        public void Register<TDependency, TImplementation>(LifeTime lifeCycle = LifeTime.Transient)
             where TDependency : class
             where TImplementation : TDependency
         {          
@@ -24,7 +23,6 @@ namespace DIContainer
                 lifeCycle
                 );
             _dependencies.Add(dependencyDescriptor);
-            DependencyConfiguration d = new();
         }
 
         internal List<DependencyDescriptor> GetDependencies() => _dependencies;
