@@ -109,6 +109,16 @@ namespace Container.Tests
             Assert.Throws<ArgumentNullException>(() => new DependencyProvider(null));
         }
 
+        /// <summary>
+        /// Find all configurations
+        /// </summary>
+        [Test]
+        public void AllConfigutationsTest()
+        {
+            IEnumerable<IService> result = _provider.Resolve<IEnumerable<IService>>();
+            Assert.That(result.Count() == 2);
+        }
+
 
     }
 }

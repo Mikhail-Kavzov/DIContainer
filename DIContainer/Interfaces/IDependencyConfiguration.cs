@@ -12,5 +12,8 @@ namespace DIContainer.Interfaces
         void Register<TDependency, TImplementation>(LifeTime lifeCycle = LifeTime.Transient)
             where TDependency : class
             where TImplementation : TDependency;
+
+        void Register(Type tDependency,
+            Type tImplementation, LifeTime lifeCycle = LifeTime.Transient);
     }
 }
