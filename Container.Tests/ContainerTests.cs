@@ -22,7 +22,6 @@ namespace Container.Tests
             configuration.Register<IService<IRepository>, ServiceImpl<IRepository>>();
 
             _provider = new DependencyProvider(configuration);
-
         }
 
         /// <summary>
@@ -115,8 +114,27 @@ namespace Container.Tests
         [Test]
         public void AllConfigutationsTest()
         {
-            IEnumerable<IService> result = _provider.Resolve<IEnumerable<IService>>();
+            var configuration = new DependencyConfiguration();
+            configuration.Register<IImplementation, DefaultConstructorClass>();
+            configuration.Register<IImplementation, DefaultConstructorClass1>();
+            var provider = new DependencyProvider(configuration);
+            var result = provider.Resolve<IEnumerable<IImplementation>>();
             Assert.That(result.Count() == 2);
+        }
+
+
+        /// <summary>
+        /// Open generic test
+        /// </summary>
+        [Test]
+        public void OpenGenericTest()
+        { 
+            var configuration = new DependencyConfiguration();
+            configuration.Register(typeof(IService<>), typeof(ServiceImpl<>));
+            configuration.Register<IMySqlRepository, MySqlRepository>();
+            var provider = new DependencyProvider(configuration);
+            var result = provider.Resolve<IService<IMySqlRepository>>();
+           
         }
 
 

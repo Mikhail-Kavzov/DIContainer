@@ -1,6 +1,7 @@
 ﻿using DIContainer.Enum;
 using DIContainer.Interfaces;
 using System.Reflection;
+using System.Collections;
 
 namespace DIContainer.Implementation
 {
@@ -27,8 +28,7 @@ namespace DIContainer.Implementation
 
         public T Resolve<T>() where T : class
         {
-            Type tDependency = typeof(T);
-            return (T)Resolve(tDependency);           
+            return (T)Resolve(typeof(T));           
         }
 
 
@@ -36,9 +36,22 @@ namespace DIContainer.Implementation
         {
             var dependencies = _configuration.GetDependencies();
             var implementation = dependencies.Find(d => d.DependencyType == t);
+
             if (implementation == null)
             {
-                throw new ArgumentNullException($"No dependency implementation {nameof(t)}");
+                if (!t.IsGenericType)
+                {
+                    throw new ArgumentNullException($"No dependency implementation {nameof(t)}");
+                }
+
+                var typeDef = t.GetGenericTypeDefinition();
+                implementation = dependencies.Find(d => d.DependencyType == typeDef);
+                if (implementation==null)
+                {
+                    throw new ArgumentNullException($"No open generic implementation {nameof(t)}");
+                }
+                _configuration.Register(t, implementation.ImplementationType, implementation.LifeTime);
+
             }
             return DefineSingleton(implementation,t);
         }
@@ -61,16 +74,16 @@ namespace DIContainer.Implementation
             return GenerateImplementation(tDependency);           
         }
 
-        private object GenerateImplementations(Type tDependency)
+        private IEnumerable<object> GenerateImplementations(Type tDependency)
         {
             var dependencies = _configuration.GetDependencies();
             var implementations = dependencies.FindAll(d=> d.DependencyType==tDependency);
-            List<object> instances = new();
+            var instances = (IList?)Activator.CreateInstance(typeof(List<>).MakeGenericType(tDependency));
             foreach (var implementation in implementations)
             {
-                instances.Add(DefineSingleton(implementation, tDependency));
+                instances!.Add(DefineSingleton(implementation, tDependency));
             }
-            return instances;
+            return (IEnumerable<object>)instances;
         }
 
         private object CreateElement(Type t)

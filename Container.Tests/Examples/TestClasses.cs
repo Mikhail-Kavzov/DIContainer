@@ -27,6 +27,17 @@ namespace DIContainer.Examples
         }
     }
 
+    class DefaultConstructorClass1 : IImplementation
+    {
+        public DefaultConstructorClass1()
+        {
+        }
+
+        public void Method()
+        {
+        }
+    }
+
     abstract class AbstractClass : Impl
     {
 
@@ -48,6 +59,16 @@ namespace DIContainer.Examples
 
     interface IService<TRepository> where TRepository : IRepository
     {
+    }
+
+    interface IMySqlRepository : IRepository
+    {
+
+    }
+
+    class MySqlRepository : IMySqlRepository
+    {
+
     }
 
     class ServiceImpl<TRepository> : IService<TRepository>
