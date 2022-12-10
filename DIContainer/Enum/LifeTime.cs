@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DIContainer.Enum
 {
-    public enum LifeCycle
+    public enum LifeTime
     {
         Transient,
         Singleton,       
