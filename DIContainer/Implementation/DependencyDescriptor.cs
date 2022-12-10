@@ -39,7 +39,7 @@ namespace DIContainer.Implementation
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return DependencyType.GetHashCode() ^ ImplementationType.GetHashCode();
         }
     }
 }
