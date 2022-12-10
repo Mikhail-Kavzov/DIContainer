@@ -24,6 +24,7 @@ namespace DIContainer
                 lifeCycle
                 );
             _dependencies.Add(dependencyDescriptor);
+            DependencyConfiguration d = new();
         }
 
         internal List<DependencyDescriptor> GetDependencies() => _dependencies;
