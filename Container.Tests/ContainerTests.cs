@@ -119,7 +119,7 @@ namespace Container.Tests
             configuration.Register<IImplementation, DefaultConstructorClass1>();
             var provider = new DependencyProvider(configuration);
             var result = provider.Resolve<IEnumerable<IImplementation>>();
-            Assert.That(result.Count() == 2);
+            Assert.That(result.Count(), Is.EqualTo(2));
         }
 
 
@@ -133,13 +133,49 @@ namespace Container.Tests
             configuration.Register<IRepository, MySqlRepository>();
             configuration.Register<IService<IRepository>, ServiceImpl<IRepository>>();
             configuration.Register(typeof(IService<>), typeof(ServiceImpl<>));
-
             var provider = new DependencyProvider(configuration);
-
             var result = provider.Resolve<IService<IRepository>>();
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf(typeof(ServiceImpl<IRepository>)));
+        }
 
-            Assert.NotNull(result);
-            Assert.IsInstanceOf(typeof(ServiceImpl<IRepository>), result);
+        /// <summary>
+        /// As self dependency
+        /// </summary>
+        [Test]
+        public void AsSelfDependencyTest()
+        {
+            var configuration = new DependencyConfiguration();
+            configuration.Register<SomeServiceImpl, SomeServiceImpl>();
+            var provider = new DependencyProvider(configuration);
+            SomeServiceImpl repository = provider.Resolve<SomeServiceImpl>();
+            Assert.That(repository, Is.Not.Null);
+            Assert.That(repository, Is.InstanceOf(typeof(SomeServiceImpl)));
+        }
+
+        /// <summary>
+        /// Transient test lifetime
+        /// </summary>
+        [Test]
+        public void TransientTest()
+        {
+            var configuration = new DependencyConfiguration();
+            configuration.Register<IImplementation, DefaultConstructorClass>(LifeTime.Transient);
+            var provider = new DependencyProvider(configuration);
+            var result1 = provider.Resolve<IImplementation>();
+            var result2 = provider.Resolve<IImplementation>();
+            Assert.That(result2, Is.Not.EqualTo(result1));
+        }
+
+
+        /// <summary>
+        /// Pass null to non-generic method Register
+        /// </summary>
+        [Test]
+        public void NullArgumentRegisterTest()
+        {
+            var configuration = new DependencyConfiguration();
+            Assert.Throws<ArgumentNullException>(() => configuration.Register(null, null));
         }
     }
 }
