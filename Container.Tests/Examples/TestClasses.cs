@@ -61,12 +61,8 @@ namespace DIContainer.Examples
     {
     }
 
-    interface IMySqlRepository : IRepository
-    {
 
-    }
-
-    class MySqlRepository : IMySqlRepository
+    class MySqlRepository : IRepository
     {
 
     }

@@ -130,11 +130,16 @@ namespace Container.Tests
         public void OpenGenericTest()
         { 
             var configuration = new DependencyConfiguration();
-            configuration.Register<IMySqlRepository, MySqlRepository>();
+            configuration.Register<IRepository, MySqlRepository>();
+            configuration.Register<IService<IRepository>, ServiceImpl<IRepository>>();
             configuration.Register(typeof(IService<>), typeof(ServiceImpl<>));
+
             var provider = new DependencyProvider(configuration);
-            var result = provider.Resolve<IService<IMySqlRepository>>();
-            Assert.That(result.GetType() == typeof(ServiceImpl<MySqlRepository>));
+
+            var result = provider.Resolve<IService<IRepository>>();
+
+            Assert.NotNull(result);
+            Assert.IsInstanceOf(typeof(ServiceImpl<IRepository>), result);
         }
     }
 }
