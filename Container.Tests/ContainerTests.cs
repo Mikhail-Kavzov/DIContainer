@@ -31,9 +31,9 @@ namespace Container.Tests
         public void RecursionGenericTest()
         {
             var result=_provider.Resolve<IService<IRepository>>();
-            Assert.That(result.GetType() == typeof(ServiceImpl<IRepository>));
+            Assert.That(result.GetType(), Is.EqualTo(typeof(ServiceImpl<IRepository>)));
             ServiceImpl<IRepository> service = (ServiceImpl<IRepository>)result;
-            Assert.That(service.rep.GetType() == typeof(RepositoryImpl));
+            Assert.That(service.rep.GetType(), Is.EqualTo(typeof(RepositoryImpl)));
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Container.Tests
             var provider = new DependencyProvider(configuration);
             var result1 = provider.Resolve<IImplementation>();
             var result2 = provider.Resolve<IImplementation>();
-            Assert.That(result1.Equals(result2)); // links are equal
+            Assert.That(result1, Is.EqualTo(result2)); // links are equal
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace Container.Tests
             configuration.Register<IImplementation, DefaultConstructorClass>();
             var provider = new DependencyProvider(configuration);
             var result = provider.Resolve<IImplementation>();
-            Assert.IsNotNull(result);
-            Assert.That(result.GetType()==typeof(DefaultConstructorClass));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.GetType(), Is.EqualTo(typeof(DefaultConstructorClass)));
         }
 
         /// <summary>
