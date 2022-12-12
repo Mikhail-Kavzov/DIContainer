@@ -9,7 +9,7 @@ namespace Container.Tests
 {
     public class ContainerTests
     {
-        private  IDependencyProvider _provider;
+        private IDependencyProvider _provider;
 
         [SetUp]
         public void Setup()
